@@ -1,5 +1,4 @@
 name: build
-
 on:
   workflow_call:
     inputs:
@@ -13,11 +12,23 @@ on:
         description: 'Emacs version (e.g. 30.1)'
         type: string
         required: true
-
 permissions:
   contents: write
-
 jobs:
+  draft:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Create Draft Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          gh release create "v$VERSION" \
+          --repo "$GITHUB_REPOSITORY" \
+          --title "Emacs v$VERSION" \
+          --notes "Built from https://ftp.gnu.org/gnu/emacs/emacs-$VERSION.tar.xz" \
+          --draft
   build:
     strategy:
       fail-fast: true
@@ -30,7 +41,6 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v6
-
       - name: Install common build deps
         run: |
           sudo apt-get update
@@ -40,21 +50,18 @@ jobs:
             libgnutls28-dev libjansson-dev libtree-sitter-dev \
             libncurses-dev zlib1g-dev \
             zstd
-
       - name: Install pgtk-only deps
         if: matrix.variant == 'pgtk'
         run: |
           sudo apt-get install -y --no-install-recommends \
             libgtk-3-dev libcairo2-dev libharfbuzz-dev librsvg2-dev libasound2-dev \
             libpng-dev libjpeg-dev libgif-dev libtiff-dev libwebp-dev
-
       - name: Build Emacs (${{ matrix.variant }})
         run: |
           bash scripts/build-emacs.sh \
             "${{ inputs.version }}" \
             "${{ matrix.variant }}" \
             "${{ matrix.march }}"
-
       - name: Package
         run: |
           bash scripts/package.sh \
@@ -62,33 +69,19 @@ jobs:
             linux \
             "${{ matrix.arch }}" \
             "${{ matrix.variant }}"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: emacs-${{ inputs.version }}-linux-${{ matrix.arch }}-${{ matrix.variant }}
-          path: emacs-${{ inputs.version }}-linux-${{ matrix.arch }}-${{ matrix.variant }}.tar.zst
-          if-no-files-found: error
-          retention-days: 7
-
-  release:
-    needs: build
-    runs-on: ubuntu-slim
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          path: dist
-          merge-multiple: true
-
-      - name: Create GitHub Release
+      - name: Upload to Draft Release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
         run: |
-          set -euo pipefail
-          ls -la dist/
-          gh release create "v$VERSION" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "Emacs $VERSION" \
-            --notes "Built from https://ftp.gnu.org/gnu/emacs/emacs-$VERSION.tar.xz" \
-            dist/emacs-*.tar.zst
+          gh release upload "v$VERSION" \
+          ./emacs-${{ inputs.version }}-linux-${{ matrix.arch }}-${{ matrix.variant }}.tar.zst
+  release:
+    needs: build
+    runs-on: ubuntu-slim
+    steps:
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: gh release edit "v$VERSION" --draft=false
