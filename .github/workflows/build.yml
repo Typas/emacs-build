@@ -30,6 +30,7 @@ jobs:
           --notes "Built from https://ftp.gnu.org/gnu/emacs/emacs-$VERSION.tar.xz" \
           --draft
   build:
+    needs: draft
     strategy:
       fail-fast: true
       matrix:
