@@ -85,4 +85,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
-        run: gh release edit "v$VERSION" --draft=false
+        run: gh release edit "v$VERSION" --draft=false -R {{ github.repository }}
