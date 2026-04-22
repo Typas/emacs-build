@@ -50,14 +50,13 @@ tar -xf "$TARBALL" -C "$WORK/src"
 echo "::endgroup::"
 
 COMMON_FLAGS=(
-    --prefix=/
+    --prefix="$OUTDIR"
     --with-native-compilation=yes
     --with-tree-sitter
     --with-modules
     --without-mailutils
     --with-gnutls
     --with-zlib
-    --with-json
     --with-compress-install
 )
 
@@ -96,7 +95,7 @@ echo "::endgroup::"
 
 echo "::group::Install"
 rm -rf "$OUTDIR"
-make install DESTDIR="$OUTDIR"
+make install
 echo "::endgroup::"
 
 echo "::group::Smoke test"
