@@ -3,12 +3,12 @@
 
 set -euo pipefail
 
-SUDO=""
-[ "$(id -u)" -ne 0 ] && SUDO="sudo"
+SUDO=()
+[ "$(id -u)" -ne 0 ] && SUDO=(sudo)
 
 if command -v apt-get >/dev/null 2>&1; then
-    $SUDO apt-get update
-    $SUDO apt-get install -y --no-install-recommends \
+    [ "${APT_UPDATED:-}" != "1" ] && "${SUDO[@]}" apt-get update
+    "${SUDO[@]}" apt-get install -y --no-install-recommends \
         gcc g++ libgccjit-dev \
         make autoconf pkg-config texinfo \
         libgnutls28-dev libjansson-dev libtree-sitter-dev \
@@ -17,7 +17,7 @@ if command -v apt-get >/dev/null 2>&1; then
         libpng-dev libjpeg-dev libgif-dev libtiff-dev libwebp-dev \
         libwebkit2gtk-4.1-dev
 elif command -v dnf >/dev/null 2>&1; then
-    $SUDO dnf install -y \
+    "${SUDO[@]}" dnf install -y \
         gcc gcc-c++ libgccjit-devel \
         make autoconf pkgconf-pkg-config texinfo \
         gnutls-devel jansson-devel libtree-sitter-devel \
