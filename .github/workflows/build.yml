@@ -52,26 +52,17 @@ jobs:
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container || fromJSON('null') }}
     steps:
-      - name: Bootstrap container
-        if: matrix.container
-        run: |
-          if command -v apt-get >/dev/null 2>&1; then
-              apt-get update && apt-get install -y --no-install-recommends git ca-certificates
-              echo "APT_UPDATED=1" >> "$GITHUB_ENV"
-          elif command -v dnf >/dev/null 2>&1; then
-              dnf install -y git ca-certificates
-          fi
       - uses: actions/checkout@v6
       - name: Install build deps
         run: bash scripts/build/install-deps.sh
       - name: Build Emacs
         run: |
-          bash scripts/build-emacs.sh \
+          bash scripts/build/build-emacs.sh \
             "${{ inputs.version }}" \
             "${{ matrix.march }}"
       - name: Package
         run: |
-          bash scripts/package.sh \
+          bash scripts/build/package.sh \
             "${{ inputs.version }}" \
             "${{ matrix.distro }}" \
             "${{ matrix.arch }}" \

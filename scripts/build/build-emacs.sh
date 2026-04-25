@@ -68,11 +68,12 @@ echo "::endgroup::"
 
 echo "::group::Install"
 rm -rf "$OUTDIR"
-make install DESTDIR="OUTDIR"
+make install DESTDIR="$OUTDIR"
 echo "::endgroup::"
 
 echo "::group::Smoke test"
-EMACS="$OUTDIR/bin/emacs"
+EMACS="$OUTDIR/usr/local/bin/emacs"
+export EMACSLOADPATH="$OUTDIR/usr/local/share/emacs/${VERSION}/lisp"
 "$EMACS" --batch --eval '(princ (emacs-version))'
 echo
 "$EMACS" --batch --eval '(unless (featurep (quote native-compile)) (error "native-compile missing"))'

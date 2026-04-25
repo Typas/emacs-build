@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-version=$(bash scripts/latest-upstream.sh)
+version=$(bash scripts/check/latest-upstream.sh)
 echo "Upstream latest: $version"
 echo "version=$version" >> "$GITHUB_OUTPUT"
 
