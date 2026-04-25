@@ -9,7 +9,7 @@ SUDO=""
 if command -v apt-get >/dev/null 2>&1; then
     $SUDO apt-get update
     $SUDO apt-get install -y --no-install-recommends \
-        gcc-14 g++-14 libgccjit-14-dev \
+        gcc g++ libgccjit-dev \
         make autoconf pkg-config texinfo \
         libgnutls28-dev libjansson-dev libtree-sitter-dev \
         libncurses-dev zlib1g-dev zstd \
