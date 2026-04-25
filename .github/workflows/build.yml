@@ -25,7 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           gh release create "emacs-$VERSION" \
-          --repo {{ github.repository }} \
+          --repo "$GITHUB_REPOSITORY" \
           --title "Emacs v$VERSION" \
           --notes "Built from https://ftp.gnu.org/gnu/emacs/emacs-$VERSION.tar.xz" \
           --draft
@@ -87,5 +87,5 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: |
           gh release edit "emacs-$VERSION" \
-          --repo {{ github.repository }} \
+          --repo "$GITHUB_REPOSITORY" \
           --draft=false
