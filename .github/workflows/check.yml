@@ -34,8 +34,8 @@ jobs:
             exit 0
           fi
 
-          if gh release view "v$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "release v$version already exists; skipping"
+          if gh release view "emacs-$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "release emacs-$version already exists; skipping"
             echo "should_build=false" >> "$GITHUB_OUTPUT"
           else
             echo "no release for v$version yet; will build"
