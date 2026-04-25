@@ -15,5 +15,5 @@ DISTRO="$2"
 ARCH="$3"
 VARIANT="$4"
 
-gh release upload "v$VERSION" \
+gh release upload "emacs-$VERSION" \
     "./emacs-${VERSION}-${DISTRO}-${ARCH}-${VARIANT}.tar.zst"
