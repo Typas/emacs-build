@@ -52,7 +52,6 @@ FLAGS=(
     --with-pgtk
     --with-cairo
     --with-sound=alsa
-    --with-xwidgets
 )
 
 if command -v gcc-14 >/dev/null 2>&1; then
