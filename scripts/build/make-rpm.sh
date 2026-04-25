@@ -31,7 +31,7 @@ Release:        1
 Summary:        GNU Emacs pgtk build with native compilation
 License:        GPL-3.0+
 BuildArch:      ${RPM_ARCH}
-Requires:       gtk3, cairo, gnutls, harfbuzz, librsvg2, alsa-lib, jansson, libtree-sitter, libgccjit
+Requires:       gtk3, cairo, gnutls, harfbuzz, librsvg2, alsa-lib, jansson, libtree-sitter, libgccjit, gcc, libpng, libjpeg-turbo, giflib, libtiff, libwebp, ncurses-libs, zlib
 Conflicts:      emacs
 Provides:       emacs
 %define _binary_payload w19.zstdio
