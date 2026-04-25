@@ -45,7 +45,7 @@ echo "::endgroup::"
 FLAGS=(
     --prefix=/usr/local
     --disable-build-details
-    --with-native-compilation=yes
+    --with-native-compilation=aot
     --with-tree-sitter
     --with-small-ja-dic
     --without-included-regex
