@@ -10,7 +10,8 @@ if command -v apt-get >/dev/null 2>&1; then
     [ "${APT_UPDATED:-}" != "1" ] && "${SUDO[@]}" apt-get update
     gcc_ver=$(apt-cache depends gcc | grep -oP 'gcc-\K[0-9]+' | head -1)
     "${SUDO[@]}" apt-get install -y --no-install-recommends \
-        ca-certificates curl gh gnupg xz-utils \
+        ca-certificates curl gnupg xz-utils `# fetch/verify` \
+        git gh `# upload-release` \
         gcc g++ "libgccjit-${gcc_ver}-dev" \
         make autoconf pkg-config texinfo \
         libgnutls28-dev libjansson-dev libtree-sitter-dev \
@@ -19,7 +20,8 @@ if command -v apt-get >/dev/null 2>&1; then
         libpng-dev libjpeg-dev libgif-dev libtiff-dev libwebp-dev
 elif command -v dnf >/dev/null 2>&1; then
     "${SUDO[@]}" dnf install -y \
-        ca-certificates curl gh gpg xz \
+        ca-certificates curl gpg xz `# fetch/verify` \
+        git gh `# upload-release` \
         gcc gcc-c++ libgccjit-devel \
         make autoconf pkgconf-pkg-config texinfo \
         gnutls-devel jansson-devel libtree-sitter-devel \
