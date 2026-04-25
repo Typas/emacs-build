@@ -8,7 +8,7 @@ SUDO=()
 
 if command -v apt-get >/dev/null 2>&1; then
     [ "${APT_UPDATED:-}" != "1" ] && "${SUDO[@]}" apt-get update
-    gcc_ver=$(apt-cache depends gcc | awk '/Depends: gcc-/{print $2}' | grep -oP '[0-9]+')
+    gcc_ver=$(apt-cache depends gcc | grep -oP 'gcc-\K[0-9]+' | head -1)
     "${SUDO[@]}" apt-get install -y --no-install-recommends \
         gcc g++ "libgccjit-${gcc_ver}-dev" \
         make autoconf pkg-config texinfo \
