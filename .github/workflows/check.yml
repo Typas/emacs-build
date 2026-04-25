@@ -3,11 +3,6 @@ on:
   schedule:
     - cron: '23 7 * * *'
   workflow_dispatch:
-    inputs:
-      force:
-        description: 'Build even if this version is already released'
-        type: boolean
-        default: false
 permissions:
   contents: write
 jobs:
