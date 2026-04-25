@@ -16,4 +16,5 @@ ARCH="$3"
 VARIANT="$4"
 
 gh release upload "emacs-$VERSION" \
+    --repo "$GITHUB_REPOSITORY" \
     "./emacs-${VERSION}-${DISTRO}-${ARCH}-${VARIANT}.tar.zst"
