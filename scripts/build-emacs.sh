@@ -1,28 +1,21 @@
 #!/usr/bin/env bash
-# Download, verify, configure, build, and stage-install Emacs.
+# Download, verify, configure, build, and stage-install Emacs (pgtk variant).
 #
-# Usage: build-emacs.sh <version> <variant> <march>
-#   variant: nox | pgtk
-#   march:   e.g. x86-64
+# Usage: build-emacs.sh <version> <march>
+#   march: e.g. x86-64
 #
 # On success, the install tree lives at $PWD/emacs-<version>/ (prefix=/),
 # ready for packaging.
 
 set -euo pipefail
 
-if [[ $# -ne 3 ]]; then
-    echo "usage: $0 <version> <variant> <march>" >&2
+if [[ $# -ne 2 ]]; then
+    echo "usage: $0 <version> <march>" >&2
     exit 2
 fi
 
 VERSION="$1"
-VARIANT="$2"
-MARCH="$3"
-
-case "$VARIANT" in
-    nox|pgtk) ;;
-    *) echo "unknown variant: $VARIANT (want nox|pgtk)" >&2; exit 2 ;;
-esac
+MARCH="$2"
 
 TARBALL="emacs-${VERSION}.tar.xz"
 MIRROR="https://ftp.gnu.org/gnu/emacs"
@@ -49,44 +42,29 @@ mkdir -p "$WORK/src"
 tar -xf "$TARBALL" -C "$WORK/src"
 echo "::endgroup::"
 
-COMMON_FLAGS=(
+FLAGS=(
     --prefix=/usr/local
     --disable-build-details
     --with-native-compilation=yes
     --with-tree-sitter
     --with-small-ja-dic
     --without-included-regex
-)
-
-NOX_FLAGS=(
-    --without-x --without-pgtk
-    --without-cairo
-    --without-sound --without-gpm
-    --without-lcms2
-    --without-png --without-jpeg --without-gif
-    --without-tiff --without-webp --without-rsvg
-    --without-xpm
-)
-
-PGTK_FLAGS=(
     --with-pgtk
     --with-cairo
     --with-sound=alsa
     --with-xwidgets
 )
 
-if [[ "$VARIANT" == "nox" ]]; then
-    VARIANT_FLAGS=("${NOX_FLAGS[@]}")
+if command -v gcc-14 >/dev/null 2>&1; then
+    export CC="${CC:-gcc-14}"
 else
-    VARIANT_FLAGS=("${PGTK_FLAGS[@]}")
+    export CC="${CC:-gcc}"
 fi
-
-export CC=gcc-14
 export CFLAGS="-O2 -flto=auto -fno-semantic-interposition -march=${MARCH} -pipe"
 
-echo "::group::Configure ($VARIANT)"
+echo "::group::Configure"
 cd "$SRC"
-./configure "${COMMON_FLAGS[@]}" "${VARIANT_FLAGS[@]}"
+./configure "${FLAGS[@]}"
 echo "::endgroup::"
 
 echo "::group::Build"
@@ -103,7 +81,5 @@ EMACS="$OUTDIR/bin/emacs"
 "$EMACS" --batch --eval '(princ (emacs-version))'
 echo
 "$EMACS" --batch --eval '(unless (featurep (quote native-compile)) (error "native-compile missing"))'
-if [[ "$VARIANT" == "pgtk" ]]; then
-    "$EMACS" --batch --eval '(unless (featurep (quote pgtk)) (error "pgtk missing"))'
-fi
+"$EMACS" --batch --eval '(unless (featurep (quote pgtk)) (error "pgtk missing"))'
 echo "::endgroup::"

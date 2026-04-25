@@ -22,25 +22,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           FORCE: ${{ inputs.force }}
-        run: |
-          set -euo pipefail
-          version=$(bash scripts/latest-upstream.sh)
-          echo "Upstream latest: $version"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-          if [[ "${FORCE:-false}" == "true" ]]; then
-            echo "force=true; building regardless"
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if gh release view "emacs-$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "release emacs-$version already exists; skipping"
-            echo "should_build=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "no release for v$version yet; will build"
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
-          fi
+        run: bash scripts/check/resolve-version.sh
   build:
     needs: resolve
     if: needs.resolve.outputs.should_build == 'true'

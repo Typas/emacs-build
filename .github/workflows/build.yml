@@ -34,49 +34,56 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        variant: [nox, pgtk]
         include:
-          - arch: amd64
+          - distro: ubuntu
             runner: ubuntu-24.04
+            arch: amd64
+            march: x86-64
+          - distro: debian
+            runner: ubuntu-24.04
+            container: docker.io/library/debian:bookworm
+            arch: amd64
+            march: x86-64
+          - distro: fedora-43
+            runner: ubuntu-24.04
+            container: quay.io/fedora/fedora:43
+            arch: amd64
             march: x86-64
     runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container || fromJSON('null') }}
     steps:
+      - name: Bootstrap container
+        if: matrix.container
+        run: |
+          if command -v apt-get >/dev/null 2>&1; then
+              apt-get update && apt-get install -y --no-install-recommends git ca-certificates
+          elif command -v dnf >/dev/null 2>&1; then
+              dnf install -y git ca-certificates
+          fi
       - uses: actions/checkout@v6
-      - name: Install common build deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            gcc-14 g++-14 libgccjit-14-dev \
-            make autoconf pkg-config texinfo \
-            libgnutls28-dev libjansson-dev libtree-sitter-dev \
-            libncurses-dev zlib1g-dev \
-            zstd
-      - name: Install pgtk-only deps
-        if: matrix.variant == 'pgtk'
-        run: |
-          sudo apt-get install -y --no-install-recommends \
-            libgtk-3-dev libcairo2-dev libharfbuzz-dev librsvg2-dev libasound2-dev \
-            libpng-dev libjpeg-dev libgif-dev libtiff-dev libwebp-dev
-      - name: Build Emacs (${{ matrix.variant }})
+      - name: Install build deps
+        run: bash scripts/build/install-deps.sh
+      - name: Build Emacs
         run: |
           bash scripts/build-emacs.sh \
             "${{ inputs.version }}" \
-            "${{ matrix.variant }}" \
             "${{ matrix.march }}"
       - name: Package
         run: |
           bash scripts/package.sh \
             "${{ inputs.version }}" \
-            linux \
+            "${{ matrix.distro }}" \
             "${{ matrix.arch }}" \
-            "${{ matrix.variant }}"
+            pgtk
       - name: Upload to Draft Release
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ inputs.version }}
         run: |
-          gh release upload "v$VERSION" \
-          ./emacs-${{ inputs.version }}-linux-${{ matrix.arch }}-${{ matrix.variant }}.tar.zst
+          bash scripts/build/upload-release.sh \
+            "${{ inputs.version }}" \
+            "${{ matrix.distro }}" \
+            "${{ matrix.arch }}" \
+            pgtk
   release:
     needs: build
     runs-on: ubuntu-slim
