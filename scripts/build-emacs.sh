@@ -50,29 +50,29 @@ tar -xf "$TARBALL" -C "$WORK/src"
 echo "::endgroup::"
 
 COMMON_FLAGS=(
-    --prefix="$OUTDIR"
+    --prefix=/usr/local
+    --disable-build-details
     --with-native-compilation=yes
     --with-tree-sitter
-    --with-modules
-    --without-mailutils
-    --with-gnutls
-    --with-zlib
-    --with-compress-install
+    --with-small-ja-dic
+    --without-included-regex
 )
 
 NOX_FLAGS=(
-    --without-x --without-pgtk --without-xwidgets
-    --without-cairo --without-imagemagick --without-rsvg
+    --without-x --without-pgtk
+    --without-cairo
     --without-sound --without-gpm
-    --without-png --without-jpeg --without-gif --without-tiff --without-webp
+    --without-lcms2
+    --without-png --without-jpeg --without-gif
+    --without-tiff --without-webp --without-rsvg
+    --without-xpm
 )
 
 PGTK_FLAGS=(
     --with-pgtk
-    --with-cairo --with-harfbuzz --with-rsvg
+    --with-cairo
     --with-sound=alsa
-    --with-png --with-jpeg --with-gif --with-tiff --with-webp
-    --without-xwidgets --without-imagemagick
+    --with-xwidgets
 )
 
 if [[ "$VARIANT" == "nox" ]]; then
@@ -82,7 +82,7 @@ else
 fi
 
 export CC=gcc-14
-export CFLAGS="-O2 -flto=auto -march=${MARCH} -pipe"
+export CFLAGS="-O2 -flto=auto -fno-semantic-interposition -march=${MARCH} -pipe"
 
 echo "::group::Configure ($VARIANT)"
 cd "$SRC"
@@ -95,7 +95,7 @@ echo "::endgroup::"
 
 echo "::group::Install"
 rm -rf "$OUTDIR"
-make install
+make install DESTDIR="OUTDIR"
 echo "::endgroup::"
 
 echo "::group::Smoke test"
