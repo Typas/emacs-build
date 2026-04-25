@@ -54,11 +54,7 @@ FLAGS=(
     --with-sound=alsa
 )
 
-if command -v gcc-14 >/dev/null 2>&1; then
-    export CC="${CC:-gcc-14}"
-else
-    export CC="${CC:-gcc}"
-fi
+export CC="${CC:-gcc}"
 export CFLAGS="-O2 -flto=auto -fno-semantic-interposition -march=${MARCH} -pipe"
 
 echo "::group::Configure"
