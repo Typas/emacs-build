@@ -47,7 +47,7 @@ Custom build by Typas Liao with pgtk, tree-sitter, and native compilation.
 
 %install
 
-%files -f %{_builddir}/files.list
+%files -f %{_topdir}/BUILD/files.list
 
 %changelog
 EOF
