@@ -32,5 +32,6 @@ podman run --rm -it \
         set -euo pipefail
         bash /repo/scripts/build/install-deps.sh &&
         mkdir -p /tmp/build && cd /tmp/build &&
-        bash /repo/scripts/build/build-emacs.sh $VERSION x86-64
+        bash /repo/scripts/build/build-emacs.sh $VERSION x86-64 &&
+        bash /repo/scripts/build/make-native-package.sh $VERSION $DISTRO amd64
     "

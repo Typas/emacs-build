@@ -23,5 +23,5 @@ sed -e "s/@@VERSION@@/${VERSION}/" \
     "${SCRIPT_DIR}/deb/control.${DISTRO}" > "${STAGEDIR}/DEBIAN/control"
 
 OUT="emacs-typas_${VERSION}_${DISTRO}_${ARCH}.deb"
-dpkg-deb --build --root-owner-group "${STAGEDIR}" "$OUT"
+ZSTD_NBTHREADS=0 dpkg-deb -Zzstd --build --root-owner-group "${STAGEDIR}" "$OUT"
 echo "wrote $OUT ($(stat -c %s "$OUT") bytes)"

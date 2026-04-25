@@ -21,15 +21,8 @@ esac
 
 STAGEDIR="$(pwd)/emacs-${VERSION}"
 RPMROOT="$(pwd)/rpmbuild"
-BUILDROOT="${RPMROOT}/BUILDROOT/emacs-typas-${VERSION}-1.${RPM_ARCH}"
 
 mkdir -p "${RPMROOT}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-mkdir -p "${BUILDROOT}"
-cp -a "${STAGEDIR}/." "${BUILDROOT}/"
-
-find "${BUILDROOT}" -not -type d | \
-    sed "s|${BUILDROOT}||" | \
-    sort > "${RPMROOT}/BUILD/files.list"
 
 cat > "${RPMROOT}/SPECS/emacs-typas.spec" <<EOF
 Name:           emacs-typas
@@ -41,11 +34,15 @@ BuildArch:      ${RPM_ARCH}
 Requires:       gtk3, cairo, gnutls, harfbuzz, librsvg2, alsa-lib, jansson, libtree-sitter, libgccjit
 Conflicts:      emacs
 Provides:       emacs
+%define _binary_payload w19.zstdio
+%define __brp_compress %{nil}
 
 %description
 Custom build by Typas Liao with pgtk, tree-sitter, and native compilation.
 
 %install
+cp -a %{stagedir}/. %{buildroot}/
+find %{buildroot} -not -type d | sed "s|%{buildroot}||" | sort > %{_topdir}/BUILD/files.list
 
 %files -f %{_topdir}/BUILD/files.list
 
@@ -53,8 +50,9 @@ Custom build by Typas Liao with pgtk, tree-sitter, and native compilation.
 EOF
 
 OUT="emacs-typas-${VERSION}-1.${RPM_ARCH}.rpm"
-rpmbuild --define "_topdir ${RPMROOT}" \
+ZSTD_NBTHREADS=0 rpmbuild --define "_topdir ${RPMROOT}" \
          --define "_rpmdir $(pwd)" \
+         --define "stagedir ${STAGEDIR}" \
          -bb "${RPMROOT}/SPECS/emacs-typas.spec"
 mv "${RPM_ARCH}/emacs-typas-${VERSION}-1.${RPM_ARCH}.rpm" "$OUT" 2>/dev/null || \
     find "${RPMROOT}/RPMS" -name "*.rpm" -exec cp {} "$OUT" \;
