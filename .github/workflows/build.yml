@@ -67,6 +67,12 @@ jobs:
             "${{ matrix.distro }}" \
             "${{ matrix.arch }}" \
             pgtk
+      - name: Make native package
+        run: |
+          bash scripts/build/make-native-package.sh \
+            "${{ inputs.version }}" \
+            "${{ matrix.distro }}" \
+            "${{ matrix.arch }}"
       - name: Upload to Draft Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,6 +82,14 @@ jobs:
             "${{ matrix.distro }}" \
             "${{ matrix.arch }}" \
             pgtk
+      - name: Upload native package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bash scripts/build/upload-native-package.sh \
+            "${{ inputs.version }}" \
+            "${{ matrix.distro }}" \
+            "${{ matrix.arch }}"
   release:
     needs: build
     runs-on: ubuntu-slim

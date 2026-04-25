@@ -20,6 +20,7 @@ if command -v apt-get >/dev/null 2>&1; then
 elif command -v dnf >/dev/null 2>&1; then
     "${SUDO[@]}" dnf install -y \
         ca-certificates curl gh gpg xz \
+        rpm-build \
         gcc gcc-c++ libgccjit-devel \
         make autoconf pkgconf-pkg-config texinfo \
         gnutls-devel jansson-devel libtree-sitter-devel \
