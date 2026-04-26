@@ -19,8 +19,10 @@ source "${DIR}/distro-config.sh"
 resolve_distro "$DISTRO"
 
 case "$PKG_TYPE" in
-    deb) INSTALL="apt-get update -qq && apt-get install -y" ;;
-    rpm) INSTALL="dnf install -y" ;;
+    deb) INSTALL="apt-get update -qq && apt-get install -y"
+         INSTALL_LOCAL="$INSTALL" ;;
+    rpm) INSTALL="dnf install -y"
+         INSTALL_LOCAL="dnf install -y --allowerasing" ;;
 esac
 
 PKG="$(ls "${PKGDIR}"/emacs-typas* 2>/dev/null | head -1)"
@@ -33,7 +35,7 @@ podman run --rm \
     "${VERIFY_IMAGE}" bash -c "
         set -euo pipefail
         ${INSTALL} emacs
-        ${INSTALL} /pkg/$(basename "$PKG")
+        ${INSTALL_LOCAL} /pkg/$(basename "$PKG")
         emacs --version
     "
 echo "==> [upgrade] PASS"

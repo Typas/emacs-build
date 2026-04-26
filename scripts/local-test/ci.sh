@@ -17,6 +17,10 @@ echo "BUILD PROCESS"
 bash "${DIR}/run.sh" "$1" "$2"
 
 echo "VERIFY PROCESS"
-bash "${DIR}/verify-fresh.sh"   "$2" &
-bash "${DIR}/verify-upgrade.sh" "$2" &
-wait
+bash "${DIR}/verify-fresh.sh"   "$2" & FRESH_PID=$!
+bash "${DIR}/verify-upgrade.sh" "$2" & UPGRADE_PID=$!
+
+stop_all() { kill "$FRESH_PID" "$UPGRADE_PID" 2>/dev/null; wait; }
+
+wait -n || { stop_all; exit 1; }
+wait -n || { stop_all; exit 1; }

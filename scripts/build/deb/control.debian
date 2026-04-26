@@ -7,6 +7,6 @@ Maintainer: Typas Liao <typas@gmail.com>
 Homepage: https://www.gnu.org/software/emacs/
 Description: GNU Emacs pgtk build with native compilation
  Custom build with pgtk, tree-sitter, and native compilation enabled.
-Depends: libgtk-3-0t64, libcairo2, libgnutls30t64, libharfbuzz0b, librsvg2-2, libasound2t64, libjansson4, libtree-sitter0.24, libgccjit0, gcc, libpng16-16t64, libjpeg62-turbo, libgif7, libtiff6, libwebp7, libwebpdemux2, libtinfo6, zlib1g
+Depends: libgtk-3-0t64, libcairo2, libgnutls30t64, libharfbuzz0b, librsvg2-2, libasound2t64, libtree-sitter0.22, libgccjit0, gcc, libpng16-16t64, libjpeg62-turbo, libgif7, libtiff6, libwebp7, libwebpdecoder3, libwebpdemux2, libtinfo6, zlib1g
 Conflicts: emacs
 Provides: emacs

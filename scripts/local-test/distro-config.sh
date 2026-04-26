@@ -15,10 +15,9 @@ resolve_distro() {
             VERIFY_IMAGE="ubuntu:24.04"
             PKG_TYPE="deb" ;;
         ubuntu-resolute)
-            BUILD_IMAGE="$BUILD_UBUNTU_IMAGE"
-            BUILD_DISTRO="ubuntu"
-            VERIFY_IMAGE="ubuntu:26.04"
-            PKG_TYPE="deb" ;;
+            # TODO: ubuntu 26.04 needs its own control file (libtree-sitter0.25, etc.)
+            echo "ubuntu-resolute is not yet supported" >&2
+            return 1 ;;
         debian|debian-trixie)
             BUILD_IMAGE="$BUILD_DEBIAN_IMAGE"
             BUILD_DISTRO="debian"
