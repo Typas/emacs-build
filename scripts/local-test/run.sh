@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Run a full local build test inside podman.
+# Build Emacs inside podman and place the package in /tmp/<distro>/.
 #
 # Usage: local-test/run.sh <version> <distro>
-#   distro: ubuntu | debian | fedora-43
 
 set -euo pipefail
 
@@ -13,25 +12,31 @@ fi
 
 VERSION="$1"
 DISTRO="$2"
-SCRIPTS="$(cd "$(dirname "$0")/.." && pwd)"
+ARCH="amd64"
+DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPTS="$(cd "${DIR}/.." && pwd)"
+OUTDIR="/tmp/${DISTRO}"
 
-case "$DISTRO" in
-    ubuntu)   IMAGE="ubuntu:24.04" ;;
-    debian)   IMAGE="debian:bookworm" ;;
-    fedora-43) IMAGE="quay.io/fedora/fedora:43" ;;
-    *)
-        echo "unknown distro: $DISTRO (expected ubuntu|debian|fedora-43)" >&2
-        exit 2
-        ;;
-esac
+# shellcheck source=distro-config.sh
+source "${DIR}/distro-config.sh"
+resolve_distro "$DISTRO"
 
+echo "==> Clearing ${OUTDIR}"
+rm -rf "${OUTDIR}"
+mkdir -p "${OUTDIR}"
+
+echo "==> Building on ${BUILD_IMAGE} (distro label: ${BUILD_DISTRO})"
 podman run --rm -it \
     -e DEBIAN_FRONTEND=noninteractive \
-    -v "$SCRIPTS:/repo/scripts:ro,z" \
-    "$IMAGE" bash -c "
+    -v "${SCRIPTS}:/repo/scripts:ro,z" \
+    -v "${OUTDIR}:/out:z" \
+    "${BUILD_IMAGE}" bash -c "
         set -euo pipefail
         bash /repo/scripts/build/install-deps.sh &&
         mkdir -p /tmp/build && cd /tmp/build &&
-        bash /repo/scripts/build/build-emacs.sh $VERSION x86-64 &&
-        bash /repo/scripts/build/make-native-package.sh $VERSION $DISTRO amd64
+        bash /repo/scripts/build/build-emacs.sh ${VERSION} x86-64 &&
+        bash /repo/scripts/build/make-native-package.sh ${VERSION} ${BUILD_DISTRO} ${ARCH} &&
+        cp emacs-typas_* emacs-typas-* /out/ 2>/dev/null || true
     "
+echo "==> Package in ${OUTDIR}:"
+ls "${OUTDIR}/"
