@@ -3,7 +3,7 @@
 # Sets: BUILD_IMAGE, BUILD_DISTRO, VERIFY_IMAGE, PKG_TYPE
 
 BUILD_UBUNTU_IMAGE="ubuntu:24.04"
-BUILD_DEBIAN_IMAGE="debian:bookworm"
+BUILD_DEBIAN_IMAGE="debian:trixie"
 BUILD_FEDORA_IMAGE="quay.io/fedora/fedora:43"
 
 resolve_distro() {
@@ -19,12 +19,7 @@ resolve_distro() {
             BUILD_DISTRO="ubuntu"
             VERIFY_IMAGE="ubuntu:26.04"
             PKG_TYPE="deb" ;;
-        debian|debian-bookworm)
-            BUILD_IMAGE="$BUILD_DEBIAN_IMAGE"
-            BUILD_DISTRO="debian"
-            VERIFY_IMAGE="debian:bookworm"
-            PKG_TYPE="deb" ;;
-        debian-trixie)
+        debian|debian-trixie)
             BUILD_IMAGE="$BUILD_DEBIAN_IMAGE"
             BUILD_DISTRO="debian"
             VERIFY_IMAGE="debian:trixie"

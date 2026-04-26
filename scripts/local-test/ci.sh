@@ -13,8 +13,10 @@ fi
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
+echo "BUILD PROCESS"
 bash "${DIR}/run.sh" "$1" "$2"
 
+echo "VERIFY PROCESS"
 bash "${DIR}/verify-fresh.sh"   "$2" &
 bash "${DIR}/verify-upgrade.sh" "$2" &
 wait
