@@ -1,76 +1,101 @@
 # emacs-build
 
-Automated builds of stable GNU Emacs for Linux amd64, published to this repo's
-[Releases](../../releases).
+Automated builds of stable GNU Emacs (pgtk variant) for Linux amd64, published
+to this repo's [Releases](../../releases).
 
 A daily GitHub Actions workflow checks `ftp.gnu.org` for a new stable Emacs
-tarball and, if one exists, builds two variants and uploads them as a release.
+tarball and, if one exists, builds it on three distros and uploads the results
+as a release.
 
-## Variants
+## What is built
 
-| Variant | Use case | UI | Extras |
-|---------|----------|----|--------|
-| `nox`   | Servers, TTY, `emacs -nw` on remote shells | terminal only | no image libs, no sound, no GUI |
-| `pgtk`  | Desktop (Wayland / X11 via GTK) | GTK 3 | Cairo, HarfBuzz, librsvg, ALSA, png/jpeg/gif/tiff/webp |
+**pgtk** — GTK 3, Wayland / X11, Cairo, HarfBuzz, librsvg, ALSA,
+png/jpeg/gif/tiff/webp. Includes: native-comp (JIT), tree-sitter, dynamic
+modules, GnuTLS, JSON, zlib.
 
-Both variants include: native-comp (JIT), tree-sitter, dynamic modules, GnuTLS,
-JSON, zlib.
+Each distro produces two assets:
+- a relocatable `.tar.zst` tarball
+- a native `.deb` or `.rpm` package (`emacs-typas`, conflicts with / provides `emacs`)
 
 ## Install
 
-Download the asset for your variant from the latest release, e.g.:
+### Tarball (any distro)
+
+Pick the tarball that matches your distro:
+
+| Distro | Asset |
+|--------|-------|
+| Ubuntu 24.04+ | `emacs-<version>-ubuntu-amd64-pgtk.tar.zst` |
+| Debian bookworm | `emacs-<version>-debian-amd64-pgtk.tar.zst` |
+| Fedora 43+ | `emacs-<version>-fedora-43-amd64-pgtk.tar.zst` |
 
 ```sh
-curl -LO https://github.com/<you>/emacs-build/releases/latest/download/emacs-30.2-linux-amd64-pgtk.tar.zst
-tar -xf emacs-30.2-linux-amd64-pgtk.tar.zst -C ~/.local/share/
+curl -LO https://github.com/<you>/emacs-build/releases/latest/download/emacs-30.2-ubuntu-amd64-pgtk.tar.zst
+tar -xf emacs-30.2-ubuntu-amd64-pgtk.tar.zst -C ~/.local/share/
 ~/.local/share/emacs-30.2/bin/emacs
 ```
 
-The archive contains one top-level directory `emacs-<version>/` with the
-standard `bin/ lib/ libexec/ share/ include/` layout. It is relocatable — put
-it anywhere and run `<extracted>/bin/emacs`.
+The archive unpacks to `emacs-<version>/` with the standard
+`bin/ lib/ libexec/ share/ include/` layout. Relocatable — put it anywhere and
+run `<extracted>/bin/emacs`.
 
 Add to PATH:
 ```sh
 export PATH="$HOME/.local/share/emacs-30.2/bin:$PATH"
 ```
 
-## Runtime dependencies
+### Native package (.deb / .rpm)
 
-Native-comp (both variants) calls out to `gcc` and needs `libgccjit.so.0` at
-runtime:
+**Ubuntu / Debian:**
+```sh
+sudo apt install ./emacs-typas_30.2_ubuntu_amd64.deb   # or _debian_
+```
 
-| Distro        | package |
-|---------------|---------|
-| Ubuntu/Debian | `libgccjit0 gcc` |
-| Fedora        | `libgccjit gcc` |
-| Arch/CachyOS  | `gcc` (includes libgccjit) |
+**Fedora:**
+```sh
+sudo dnf install ./emacs-typas-30.2-1.x86_64.rpm
+```
 
-`pgtk` additionally needs:
+The native package pulls in all runtime dependencies automatically.
 
-| Distro        | packages |
-|---------------|----------|
-| Ubuntu/Debian | `libgtk-3-0 libcairo2 libharfbuzz0b librsvg2-2 libasound2 libpng16-16 libjpeg-turbo8 libgif7 libtiff6 libwebp7` |
-| Fedora        | `gtk3 cairo harfbuzz librsvg2 alsa-lib libpng libjpeg-turbo giflib libtiff libwebp` |
-| Arch/CachyOS  | `gtk3 cairo harfbuzz librsvg alsa-lib libpng libjpeg-turbo giflib libtiff libwebp` |
+## Runtime dependencies (tarball only)
+
+Native-comp calls out to `gcc` and needs `libgccjit.so.0`:
+
+| Distro | package |
+|--------|---------|
+| Ubuntu 24.04+ | `libgccjit0 gcc` |
+| Debian bookworm | `libgccjit0 gcc` |
+| Fedora | `libgccjit gcc` |
+
+pgtk additionally needs:
+
+| Distro | packages |
+|--------|----------|
+| Ubuntu 24.04+ | `libgtk-3-0t64 libcairo2 libharfbuzz0b librsvg2-2 libasound2t64 libpng16-16t64 libjpeg-turbo8 libgif7 libtiff6 libwebp7 libwebpdecoder3 libwebpdemux2` |
+| Debian bookworm | `libgtk-3-0t64 libcairo2 libharfbuzz0b librsvg2-2 libasound2t64 libpng16-16t64 libjpeg62-turbo libgif7 libtiff6 libwebp7 libwebpdecoder3 libwebpdemux2` |
+| Fedora | `gtk3 cairo harfbuzz librsvg2 alsa-lib libpng libjpeg-turbo giflib libtiff libwebp` |
 
 ## First launch
 
 Native-compiled `.eln` files are NOT shipped (AOT paths don't survive
 relocation). Emacs JIT-compiles on demand and caches under
-`~/.cache/emacs/eln-cache/`. The first launches will be slower as packages get
-compiled; subsequent launches are fast.
+`~/.cache/emacs/eln-cache/`. First launches are slower as packages compile;
+subsequent launches are fast.
 
-## Build target
+## Build targets
 
-Built on Ubuntu 24.04 (glibc 2.39) with GCC 14, `-O2 -flto=auto -march=x86-64`.
-Portable to modern Linux distros with glibc ≥ 2.39 (Ubuntu 24.04+, Debian 13+,
-Fedora 43+, Arch/CachyOS).
+| Distro | Runner | glibc |
+|--------|--------|-------|
+| Ubuntu 24.04 | `ubuntu-24.04` | 2.39 |
+| Debian bookworm | `ubuntu-24.04` + container | 2.36 |
+| Fedora 43 | `ubuntu-24.04` + container | — |
+
+All builds: GCC (distro default), `-O2 -flto=auto -march=x86-64`.
 
 ## Manual trigger
 
-- `check` workflow: runs daily at 06:00 UTC; can be dispatched with
-  `force: true` to rebuild the current upstream version even if it was already
-  released.
+- `check` workflow: runs daily at 07:23 UTC; can be dispatched to rebuild the
+  current upstream version.
 - `build` workflow: can be dispatched directly with a `version` input to
   rebuild any specific version.
