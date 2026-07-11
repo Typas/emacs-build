@@ -9,7 +9,7 @@ as a release.
 
 ## What is built
 
-**pgtk** — GTK 3, Wayland / X11, Cairo, HarfBuzz, librsvg, ALSA,
+**pgtk** — GTK 3, Wayland, Cairo, HarfBuzz, librsvg, ALSA,
 png/jpeg/gif/tiff/webp. Includes: native-comp (JIT), tree-sitter, dynamic
 modules, GnuTLS, JSON, zlib.
 
@@ -25,23 +25,18 @@ Pick the tarball that matches your distro:
 
 | Distro | Asset |
 |--------|-------|
-| Ubuntu 24.04+ | `emacs-<version>-ubuntu-amd64-pgtk.tar.zst` |
+| Ubuntu 24.04 | `emacs-<version>-ubuntu-amd64-pgtk.tar.zst` |
 | Debian bookworm | `emacs-<version>-debian-amd64-pgtk.tar.zst` |
 | Fedora 43+ | `emacs-<version>-fedora-43-amd64-pgtk.tar.zst` |
 
 ```sh
-curl -LO https://github.com/<you>/emacs-build/releases/latest/download/emacs-30.2-ubuntu-amd64-pgtk.tar.zst
-tar -xf emacs-30.2-ubuntu-amd64-pgtk.tar.zst -C ~/.local/share/
-~/.local/share/emacs-30.2/bin/emacs
+curl -L https://github.com/Typas/emacs-build/releases/latest/download/emacs-30.2-ubuntu-amd64-pgtk.tar.zst | tar -x --zstd -C ~/.local/share
+~/.local/share/emacs-30.2/usr/local/bin/emacs
 ```
-
-The archive unpacks to `emacs-<version>/` with the standard
-`bin/ lib/ libexec/ share/ include/` layout. Relocatable — put it anywhere and
-run `<extracted>/bin/emacs`.
 
 Add to PATH:
 ```sh
-export PATH="$HOME/.local/share/emacs-30.2/bin:$PATH"
+export PATH="$HOME/.local/share/emacs-30.2/usr/local/bin:$PATH"
 ```
 
 ### Native package (.deb / .rpm)
@@ -58,23 +53,13 @@ sudo dnf install ./emacs-typas-30.2-1.x86_64.rpm
 
 The native package pulls in all runtime dependencies automatically.
 
-## Runtime dependencies (tarball only)
-
-Native-comp calls out to `gcc` and needs `libgccjit.so.0`:
-
-| Distro | package |
-|--------|---------|
-| Ubuntu 24.04+ | `libgccjit0 gcc` |
-| Debian bookworm | `libgccjit0 gcc` |
-| Fedora | `libgccjit gcc` |
-
-pgtk additionally needs:
+## Runtime dependencies (for tarball excutable only)
 
 | Distro | packages |
 |--------|----------|
-| Ubuntu 24.04+ | `libgtk-3-0t64 libcairo2 libharfbuzz0b librsvg2-2 libasound2t64 libpng16-16t64 libjpeg-turbo8 libgif7 libtiff6 libwebp7 libwebpdecoder3 libwebpdemux2` |
-| Debian bookworm | `libgtk-3-0t64 libcairo2 libharfbuzz0b librsvg2-2 libasound2t64 libpng16-16t64 libjpeg62-turbo libgif7 libtiff6 libwebp7 libwebpdecoder3 libwebpdemux2` |
-| Fedora | `gtk3 cairo harfbuzz librsvg2 alsa-lib libpng libjpeg-turbo giflib libtiff libwebp` |
+| Ubuntu 24.04+ | `libgccjit0 gcc libgtk-3-0t64 libcairo2 libharfbuzz0b librsvg2-2 libasound2t64 libpng16-16t64 libjpeg-turbo8 libgif7 libtiff6 libwebp7 libwebpdecoder3 libwebpdemux2` |
+| Debian bookworm | `libgccjit0 gcc libgtk-3-0t64 libcairo2 libharfbuzz0b librsvg2-2 libasound2t64 libpng16-16t64 libjpeg62-turbo libgif7 libtiff6 libwebp7 libwebpdecoder3 libwebpdemux2` |
+| Fedora | `libgccjit0 gcc gtk3 cairo harfbuzz librsvg2 alsa-lib libpng libjpeg-turbo giflib libtiff libwebp` |
 
 ## First launch
 
